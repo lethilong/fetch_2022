@@ -15,5 +15,12 @@
   "bugs": {
     "url": "https://github.com/lethilong/fetch_2022/issues"
   },
-  "homepage": "https://github.com/lethilong/fetch_2022#readme"
+  "homepage": "https://github.com/lethilong/fetch_2022#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.18.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.3.5"
+  }
 }
