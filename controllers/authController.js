@@ -1,7 +1,7 @@
 const sendToken = require('../helpers/sendToken');
 const User = require('../models/User');
 
-
+//signup
 exports.signup = async (req, res) => {
     if (!req.body.username) {
         res.status(400).json({
@@ -28,6 +28,7 @@ exports.signup = async (req, res) => {
     }   
 }
 
+//login
 exports.login = async (req, res) => {
     const {username, password} = req.body;
     if (!username) {
@@ -72,8 +73,10 @@ exports.login = async (req, res) => {
         })
     }   
 }
+
+//logout
 exports.logout = async (req, res) => {
-    res.cookie('token', null, {
+     res.cookie('token', null, {
         expires: new Date(Date.now()),
         httpOnly: true,
     })
