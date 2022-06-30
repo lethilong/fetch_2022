@@ -1,6 +1,7 @@
-import { Prop, Schema } from "@nestjs/mongoose";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose from "mongoose";
 import { Product } from "src/products/schemas/product.schema";
+
 
 @Schema({timestamps: true})
 export class CartItem {
@@ -10,3 +11,5 @@ export class CartItem {
     @Prop({required: true, default: 1})
     quantity: number;
 }
+
+export const CartItemSchema = SchemaFactory.createForClass(CartItem);

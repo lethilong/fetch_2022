@@ -21,18 +21,15 @@ export class ProductsController {
     })
   }))
   
-  async create(@Body() createCategoryDto: CreateProductDto, @UploadedFile() file: Express.Multer.File) {
-    if (file)
-      createCategoryDto.image = `http://localhost:3000/images/${file.filename}`
-    return this.productsService.create(createCategoryDto);
+  async create(@Body() createProductDto: CreateProductDto, @UploadedFile() file: Express.Multer.File) {
+    if (file) {
+      createProductDto.image = `${process.env.BASE_URL}images/${file.filename}`
+    }     
+    return this.productsService.create(createProductDto);
   }
-  // create(@Body() createProductDto: CreateProductDto) {
-  //   return this.productsService.create(createProductDto);
-  // }
-
+ 
   @Get()
   findAll(@Query() getProductsDto: GetProductsDto) {
-    console.log(getProductsDto);
     return this.productsService.findAll(getProductsDto);
   }
 
@@ -41,8 +38,19 @@ export class ProductsController {
     return this.productsService.findOne(id);
   }
 
+  @UseInterceptors(FileInterceptor('image', {
+    storage: diskStorage({
+      destination: './public/images',
+      filename: (req, file, cb) => {
+        cb(null, uuid.v4()+'.png');
+      }
+    })
+  }))
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
+  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto,  @UploadedFile() file: Express.Multer.File) {
+    if (file) {
+      updateProductDto.image = `${process.env.BASE_URL}images/${file.filename}`
+    }  
     return this.productsService.update(id, updateProductDto);
   }
 

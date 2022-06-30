@@ -1,4 +1,4 @@
-import { IsNotEmpty, Min } from "class-validator";
+import { IsNotEmpty, IsNumberString, Min } from "class-validator";
 
 export class OrderItemDto {
     @IsNotEmpty()
@@ -8,7 +8,23 @@ export class OrderItemDto {
     quantity: number;
 
 }
+
+export class CustomerDto {
+    @IsNotEmpty()
+    name: string;
+
+    @IsNotEmpty()
+    phone: string;
+
+    @IsNotEmpty()
+    @IsNumberString()
+    address: string;
+}
 export class CreateOrderDto{
+    @IsNotEmpty()
     products: OrderItemDto[];
+
+    @IsNotEmpty()
+    customer: CustomerDto;
 }
    

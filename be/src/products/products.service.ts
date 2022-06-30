@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateProductDto } from './dto/create-product.dto';
-import { GetProductsDto } from './dto/get-products.dto';
 import { Product, ProductDocument } from './schemas/product.schema';
 
 @Injectable()
@@ -29,7 +28,7 @@ export class ProductsService {
   }
 
   async findAll(getProductsDto): Promise<Product[]> {
-    const { page, sort, limit, category, search, minPrice, maxPrice} = getProductsDto;
+    const { sort, limit, category, search, minPrice, maxPrice} = getProductsDto;
     const searchQuery = search ? {name: new RegExp(search, 'i')} : {};
     const categoryQuery = category ? {category:{_id: category}} : {};
     const minPriceQuery = minPrice ? {$gte: minPrice}: {};

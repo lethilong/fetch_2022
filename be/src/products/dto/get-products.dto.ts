@@ -1,5 +1,3 @@
-import { IsIn, IsNotEmpty } from "class-validator";
-
 export enum SortOptions {
     newest = 'newest',
     oldest = 'oldest',
@@ -8,15 +6,7 @@ export enum SortOptions {
 }
 
 export class GetProductsDto {
-    @IsNotEmpty()
-    page: string;
-  
-    @IsIn([
-      SortOptions.newest,
-      SortOptions.oldest,
-      SortOptions.priceasc,
-      SortOptions.pricedesc,
-    ])
+     
     sort: SortOptions;
 
     limit: number;
