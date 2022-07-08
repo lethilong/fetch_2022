@@ -13,50 +13,67 @@ export class CartsService {
     @InjectModel('Product') private productModel: Model<ProductDocument>
     ){}
 
-  async addToCart(customerIp, changeCartDto: ChangeCartDto): Promise<Cart>{
-    const {productId} = changeCartDto;
-    let cart = await this.cartModel.findOne({customerIp: customerIp});
+  async addToCart(customerId, changeCartDto: ChangeCartDto): Promise<Cart>{
+    const {product, quantity} = changeCartDto;
+    const qtyProductChange = quantity || 1;
+    let cart = await this.cartModel.findOne({customerId: customerId});
     if (!cart) {
-      cart = await this.cartModel.create({customerIp: customerIp, items: []});
+      cart = await this.cartModel.create({customerId: customerId, items: []});
     }
 
-    const product = await this.productModel.findById(productId);
-    if (!product) {
+    const existedProduct = await this.productModel.findById(product);
+    if (!existedProduct) {
       throw new NotFoundException('Product does not exist');
     }
     else {
-      const index = cart.items.findIndex(item => item.productId == productId);
+      const index = cart.items.findIndex(item => item.product == product);
       if (index == -1) {
-        cart.items.push({...changeCartDto, quantity: 1});
+        cart.items.push({...changeCartDto, quantity: qtyProductChange});
       } else {
-        cart.items[index].quantity++;
+        cart.items[index].quantity+=qtyProductChange;
       }
-      const updatedcart = await this.cartModel.findOneAndUpdate({customerIp: customerIp}, cart, {new: true});
-      return updatedcart;
+      const updatedCart = await this.cartModel.findOneAndUpdate({customerId: customerId}, cart, {new: true});
+      return updatedCart;
     } 
   }
 
-  async removeFromCart(customerIp, changeCartDto: ChangeCartDto): Promise<Cart> {
-    const {productId} = changeCartDto;
-    const cart = await this.cartModel.findOne({customerIp});
+  async removeFromCart(customerId, changeCartDto: ChangeCartDto): Promise<Cart> {
+    const {product, quantity} = changeCartDto;
+    const qtyProductChange = quantity || 1;
+    const cart = await this.cartModel.findOne({customerId});
     if (!cart) {
       throw new NotFoundException('Cart does not exist');
     } else {
-      const index = cart.items.findIndex(item => item.productId == productId);
+      const index = cart.items.findIndex(item => item.product == product);
       if (index == -1) {
-        throw new NotFoundException('Cannot find this product in cart');
+        throw new NotFoundException('Can not find this product in cart');
       } else {
-        const qty = --cart.items[index].quantity;
-        if (qty == 0) cart.items.splice(index, 1);
+        cart.items[index].quantity-=qtyProductChange;
+        if (cart.items[index].quantity == 0) cart.items.splice(index, 1);
       }
-      console.log(cart);
-      const updatedcart = await this.cartModel.findOneAndUpdate({customerIp: customerIp}, cart, {new: true});
-      return updatedcart;
+      const updatedCart = await this.cartModel.findOneAndUpdate({customerId: customerId}, cart, {new: true});
+      return updatedCart;
     }
   }
 
-  async getCart(customerIp): Promise<Cart> {
-    const cart = await this.cartModel.findOne({customerIp}).populate('items.productId');
+  async deleteItem(customerId, productId): Promise<Cart> {
+    const cart = await this.cartModel.findOne({customerId});
+    if (!cart) {
+      throw new NotFoundException('Cart does not exist');
+    } else {
+      const index = cart.items.findIndex(item => item.product == productId);
+      if (index == -1) {
+        throw new NotFoundException('Can not find this product in cart ');
+      } else {
+        cart.items.splice(index, 1);
+      }
+      const updatedCart = await this.cartModel.findOneAndUpdate({customerId}, cart, {new: true});
+      return cart;
+    }
+  }
+
+  async getCart(customerId): Promise<Cart> {
+    const cart = await this.cartModel.findOne({customerId}).populate('items.product');
     return cart;
   }
 

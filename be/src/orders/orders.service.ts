@@ -1,5 +1,6 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotAcceptableException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { ObjectId } from 'mongodb';
 import { Model } from 'mongoose';
 import { ProductDocument } from 'src/products/schemas/product.schema';
 import { CreateOrderDto, OrderItemDto } from './dto/create-order.dto';
@@ -11,18 +12,8 @@ export class OrdersService {
   constructor(
     @InjectModel('Order') private readonly orderModel: Model<OrderDocument>, 
     @InjectModel('Product') private readonly productModel: Model<ProductDocument>){}
-  async createOrder(orderDto: CreateOrderDto): Promise<Order>{
-    const orderItems = Promise.all(orderDto.products.map((orderItem) =>{
-        // let newOrderItem = {
-        //     product: orderItem.product,
-        //     quantity ?: orderItem.quantity
-        // }
-        let newOrderItem = orderItem;
-
-        return newOrderItem;
-    }));
-    const orderItemsResolved =  await orderItems;
-
+  async createOrder(customerId, orderDto: CreateOrderDto): Promise<Order>{
+    const orderItemsResolved =orderDto.products;
     const totalPrices = await Promise.all(orderItemsResolved.map(async (orderItem)=>{
         const product = await this.productModel.findById(orderItem.product);
 
@@ -42,9 +33,10 @@ export class OrdersService {
     const totalPrice = totalPrices.reduce((total,price) => total + price , 0);
 
     const newOrder = new this.orderModel({
+        customerId: customerId,
         items: orderItemsResolved,
         totalPrice: totalPrice,
-        customer: orderDto.customer
+        delivery: orderDto.delivery
     });
 
     await newOrder.save();
@@ -54,25 +46,48 @@ export class OrdersService {
 
 
 
-  async findAll(): Promise<Order[]>{
-    const orders = await this.orderModel.find();
+  async findAll(query): Promise<Order[]>{
+    const {status} = query;
+    const statusQuery = status?{status: status}:{}
+    const orders = await this.orderModel.find(statusQuery);
+    return orders;
+  }
+
+  async findMyOrders(customerId): Promise<Order[]> {
+    const orders = await this.orderModel.find({customerId}).sort('-createdAt');
     return orders;
   }
 
   async findOne(id): Promise<Order> {
     const order = await this.orderModel.findById(id);
     if (!order) {
-      throw new NotFoundException('Order with this ID does not exist');
+      throw new NotFoundException('Order does not exist');
     } else {
       return order
     }
   }
 
-  update(id, updateOrderDto: UpdateOrderDto) {
-    return `This action updates a #${id} order`;
+  async update(id, updateOrderDto: UpdateOrderDto) {
+    const order = await this.orderModel.findByIdAndUpdate(id, updateOrderDto, {new: true, runValidators: true});
+    if (!order) {
+      throw new NotFoundException('Order does not exist');
+    } else {
+      return order;
+    }
   }
 
-  remove(id) {
-    return `This action removes a #${id} order`;
+  async cancelOrder(id, customerId) {
+    const order = await this.orderModel.findOne({id: id, customerId});
+    if (!order) {
+      throw new NotFoundException('Order does not exist');
+    } else {
+      if (order.status != 'pending') {
+        throw new NotAcceptableException(`Your order is in ${order.status} status. Can not cancel`);
+      } else {
+        order.status = 'cancelled';
+      }
+    }
+    await order.save();
+    return order;
   }
 }

@@ -12,10 +12,13 @@ export class GetProductsDto {
     limit: number;
   
     category?: string;
+
+    isFeatured? : boolean;
   
     search?: string;
 
     minPrice?: number;
   
     maxPrice?: number;
+
 }

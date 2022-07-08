@@ -12,7 +12,7 @@ export class Product {
     @Prop({required: true})
     image: string;
 
-    @Prop({default: 1})
+    @Prop({default: 1, min: 0})
     quantity: number;
 
     @Prop({required: true})
@@ -23,15 +23,18 @@ export class Product {
 
     @Prop({type: mongoose.Schema.Types.ObjectId, ref:'Category', required: true})
     category: Category;
+
+    @Prop({default: false})
+    isFeatured: boolean;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
-ProductSchema.pre(/^find/, async function(next: Function) {
-    this.populate({
-        path: 'category',
-        select: 'name'
-    });
-    next();
-}
+// ProductSchema.pre(/^find/, async function(next: Function) {
+//     this.populate({
+//         path: 'category',
+//         select: 'name'
+//     });
+//     next();
+// }
 
-)
+// )

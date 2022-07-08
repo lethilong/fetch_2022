@@ -6,4 +6,5 @@ export class CreateProductDto {
     quantity: number;
     description: string;
     category: mongoose.Schema.Types.ObjectId;
+    isFeatured: boolean;
 }

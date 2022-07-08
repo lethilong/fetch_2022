@@ -9,7 +9,7 @@ export class OrderItemDto {
 
 }
 
-export class CustomerDto {
+export class DeliveryDto {
     @IsNotEmpty()
     name: string;
 
@@ -25,6 +25,7 @@ export class CreateOrderDto{
     products: OrderItemDto[];
 
     @IsNotEmpty()
-    customer: CustomerDto;
+    delivery: DeliveryDto;
+
 }
    

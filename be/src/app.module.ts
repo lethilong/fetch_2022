@@ -9,6 +9,9 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { OrdersModule } from './orders/orders.module';
 import { CartsModule } from './carts/carts.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { PaymentsModule } from './payments/payments.module';
 
 
 @Module({
@@ -18,7 +21,7 @@ import { CartsModule } from './carts/carts.module';
     }),
     ConfigModule.forRoot(),
     MongooseModule.forRoot(process.env.MONGO_URI), 
-    ProductsModule, CategoriesModule, OrdersModule, CartsModule,],
+    ProductsModule, CategoriesModule, OrdersModule, CartsModule, AuthModule, UsersModule, PaymentsModule,],
   controllers: [AppController],
   providers: [AppService],
 })

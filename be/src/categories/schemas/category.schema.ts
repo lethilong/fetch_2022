@@ -11,6 +11,4 @@ export class Category {
     image: string;
 }
 
-
-
 export const CategorySchema = SchemaFactory.createForClass(Category);
